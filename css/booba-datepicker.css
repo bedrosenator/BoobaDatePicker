@@ -1,0 +1,8 @@
+.booba-datepicker table{
+    border-collapse: collapse;
+}
+
+.booba-datepicker table  td {
+    border: 1px solid black;
+
+}
