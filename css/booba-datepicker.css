@@ -1,8 +1,36 @@
-.booba-datepicker table{
-    border-collapse: collapse;
+.date-picker {
+    width: 196px;
 }
 
-.booba-datepicker table  td {
-    border: 1px solid black;
+.booba-datepicker-wrap {
+    width: 200px;
 
+}
+.booba-datepicker-wrap table{
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.booba-datepicker-wrap table  td {
+    border: 1px solid black;
+    text-align: center;
+    padding: 0;
+
+}
+
+.booba-datepicker-wrap .next-month, .booba-datepicker-wrap .prev-month {
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+    display: block;
+    color: dimgray;
+    font-size: 1.3em;
+}
+
+.month-name {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
 }
