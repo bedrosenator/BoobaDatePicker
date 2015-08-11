@@ -4,6 +4,7 @@
 
 .booba-datepicker-wrap {
     width: 200px;
+    
 
 }
 .booba-datepicker-wrap table{
@@ -25,12 +26,25 @@
     display: block;
     color: dimgray;
     font-size: 1.3em;
+
+}
+
+.booba-datepicker-wrap .next-month a {
+    display: block;
+    width: 100%;
 }
 
 .month-name {
     text-align: center;
+    width: 68%;
 }
 
 .hidden {
     display: none;
 }
+
+.calendar-table td{
+    width: 14%;
+
+}
+
