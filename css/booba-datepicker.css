@@ -17,10 +17,11 @@
 .booba-datepicker-wrap table  td {
     border: 1px solid black;
     text-align: center;
-
-    padding: 0.2em;
+    border-collapse: collapse;
 }
-
+.booba-datepicker-wrap table {
+    border-collapse: collapse;
+}
 .booba-datepicker-wrap .next-month, .booba-datepicker-wrap .prev-month {
     text-decoration: none;
     text-align: center;
@@ -29,8 +30,8 @@
     color: dimgray;
     font-size: 1.3em;
     position: absolute;
-    border: 1px solid #000;
-    border-radius: 2px;
+    border: none;
+    border-radius: 12px;
     padding: 0 5px;
     cursor: pointer;
     background-color: darkgray;
@@ -55,6 +56,17 @@
     color: lightgray;
 }
 
+.booba-datepicker-wrap td a.active{
+    background: #ccc;
+}
+.booba-datepicker-wrap td a.not-active{
+    color: lightgray;
+    font-style: italic;
+}
+
+.booba-datepicker-wrap td a {
+    padding: 0.2em;
+}
 .month-name {
     text-align: center;
     width: 68%;

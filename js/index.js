@@ -4,7 +4,7 @@ function DatePicker(options) {
     this.inputElem = document.getElementById(options.id);
 
     //init date
-    this.date = options.date || new Date();
+    this.date = options.date.year && options.date.month ? new Date(options.date.year, options.date.month - 1) : new Date();
 
     this.uiClasses = {
         wrap: 'booba-datepicker-wrap',
@@ -50,6 +50,8 @@ DatePicker.prototype.init = function() {
     this.drawHeader();
     this.drawCalendar();
 
+    this.nextMonth.addEventListener('click', this.showNextMonth.bind(this));
+
 };
 
 DatePicker.prototype.formatDate = function(options) {
@@ -64,7 +66,7 @@ DatePicker.prototype.formatDate = function(options) {
     if(day < 10) day = "0" + day;
     if(month < 10) month = "0" + month;
 
-    return day + separator + month + separator + year;;
+    return day + separator + month + separator + year;
 };
 
 DatePicker.prototype.setDate = function() {
@@ -78,7 +80,14 @@ DatePicker.prototype.setInputElemDate = function() {
     this.inputElem.value = this.formatDate();
 };
 
-DatePicker.prototype.showNextMonth = function() {
+DatePicker.prototype.showNextMonth = function(e) {
+    if(e.target.className !== this.uiClasses.nextMonth) return;
+    //set next month
+    this.date.setMonth(this.date.getMonth() + 1);
+
+    this.clearCalendar();
+    this.updateTitle();
+    this.drawCalendar();
 
 };
 /**
@@ -90,7 +99,7 @@ DatePicker.prototype.showPrevMonth = function() {};
 DatePicker.prototype.drawWrap = function() {
     this.calendarWrap = document.createElement('div');
     this.calendarWrap.className = this.uiClasses.wrap;
-}
+};
 
 /**
  * draws controls next arrow, previous arrow and month in header
@@ -114,7 +123,7 @@ DatePicker.prototype.drawHeader = function() {
 
     this.title = document.createElement('div');
     this.title.className = this.uiClasses.title;
-    this.title.innerHTML = this.months[this.date.getMonth()];
+    this.title.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
     this.header.appendChild(this.title);
 
     this.calendarWrap.appendChild(this.header);
@@ -122,17 +131,43 @@ DatePicker.prototype.drawHeader = function() {
 
 };
 
+DatePicker.prototype.updateTitle = function() {
+    this.title.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
+};
+
+DatePicker.prototype.clearCalendar = function() {
+    //debugger;
+    var cells = this.calendar.childNodes;
+
+    while(this.calendar.lastChild) {
+        this.calendar.removeChild(this.calendar.lastChild);
+    }
+
+    this.calendar.parentNode.removeChild(this.calendar);
+
+    //console.log(this.calendar.childNodes.length);
+};
+
+
+
 DatePicker.prototype.drawCalendar = function() {
     var date = this.date;
     var daysInMonth = date.daysInMonth();
-    var weekStart = date.getDay() + 1;
+    var weekStart = this.getMonthStartDay() - 1;
+    var prevMonth = new Date(this.date.getMonth() - 1).getMonth();
+    prevMonth = new Date(this.date.getFullYear(), prevMonth).daysInMonth();
+    console.log(prevMonth);
     var td;
     var tr;
     var a;
     var totalCells =  weekStart + daysInMonth;
-    console.log(daysInMonth);
-    console.log('weekStart = ' + weekStart);
-    this.calendar = document.createElement('table');
+    //remove calendar table if exist
+    if(this.calendar && this.calendar.hasChildNodes()) {
+        this.clearCalendar();
+    } else {
+        this.calendar = document.createElement('table');
+    }
+
     this.calendar.className = this.uiClasses.calendar;
 
     for (var i = 1, k = 0; i < totalCells, k <= daysInMonth; i++) {
@@ -148,9 +183,17 @@ DatePicker.prototype.drawCalendar = function() {
             a.className = this.uiClasses.day;
             a.innerHTML = k;
 
+            if(k == (this.date.getDate())) {
+                a.className += ' active';
+            }
 
-            if (i <= weekStart || k > daysInMonth) {
+            if (i <= weekStart) {
                 a.innerHTML = "&nbsp;";
+            }
+
+            if(k > daysInMonth) {
+                a.innerHTML = j - 1;
+                a.className += ' not-active';
             }
 
             td.appendChild(a);
@@ -161,14 +204,13 @@ DatePicker.prototype.drawCalendar = function() {
 
         this.calendar.appendChild(tr);
         tr = '';
-
     }
 
+
     this.calendarWrap.appendChild(this.calendar);
+
     //insert into document
     this.inputElem.parentNode.insertBefore(this.calendarWrap, this.inputElem.nextSibling);
-
-
 };
 DatePicker.prototype.showCalendar = function() {
 
@@ -182,3 +224,7 @@ Date.prototype.daysInMonth = function(month) {
     return 33 - new Date(this.getFullYear(), this.getMonth(), 33).getDate();
 };
 
+DatePicker.prototype.getMonthStartDay = function() {
+    var date = new Date(this.date.getFullYear(), this.date.getMonth());
+    return date.getDay();
+};
