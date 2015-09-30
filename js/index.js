@@ -18,6 +18,8 @@ function DatePicker(options) {
 
     // calendar body
     this.calendar;
+    
+    this.startWeek = 0;
 
     // calendar header
     this.header;
@@ -29,7 +31,7 @@ function DatePicker(options) {
     this.month;
 
     //week days
-    this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+    this.weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
     //months
     this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -131,6 +133,20 @@ DatePicker.prototype.drawHeader = function() {
 
 };
 
+DatePicker.prototype.drawWeekDays = function() {
+    var tr = document.createElement('tr');
+    var td;
+            
+    for (var i = this.startWeek; i < this.weekDays.length; i++) {
+        td = document.createElement('td');
+        td.innerHTML = this.weekDays[i];
+        tr.appendChild(td);
+    }
+    
+    this.calendar.appendChild(tr);
+
+};
+
 DatePicker.prototype.updateTitle = function() {
     this.title.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
 };
@@ -153,14 +169,17 @@ DatePicker.prototype.clearCalendar = function() {
 DatePicker.prototype.drawCalendar = function() {
     var date = this.date;
     var daysInMonth = date.daysInMonth();
-    var weekStart = this.getMonthStartDay() - 1;
-    var prevMonth = new Date(this.date.getMonth() - 1).getMonth();
-    prevMonth = new Date(this.date.getFullYear(), prevMonth).daysInMonth();
-    console.log(prevMonth);
+    var weekStart = this.getMonthStartDay();
+    var prevMonthDays = new Date(this.date.getMonth() - 1).getMonth();
+    prevMonthDays = new Date(this.date.getFullYear(), prevMonthDays).daysInMonth();
+    var prevMonthStartDay = prevMonthDays - weekStart;
+    
     var td;
     var tr;
     var a;
     var totalCells =  weekStart + daysInMonth;
+    var nextMonthDays = 1;
+    
     //remove calendar table if exist
     if(this.calendar && this.calendar.hasChildNodes()) {
         this.clearCalendar();
@@ -169,7 +188,9 @@ DatePicker.prototype.drawCalendar = function() {
     }
 
     this.calendar.className = this.uiClasses.calendar;
-
+    
+    this.drawWeekDays();
+    
     for (var i = 1, k = 0; i < totalCells, k <= daysInMonth; i++) {
 
         tr = document.createElement('tr');
@@ -188,11 +209,12 @@ DatePicker.prototype.drawCalendar = function() {
             }
 
             if (i <= weekStart) {
-                a.innerHTML = "&nbsp;";
+                a.innerHTML = ++prevMonthStartDay;
+                a.className += ' not-active';
             }
 
             if(k > daysInMonth) {
-                a.innerHTML = j - 1;
+                a.innerHTML = nextMonthDays++;
                 a.className += ' not-active';
             }
 

@@ -164,16 +164,14 @@ DatePicker.prototype.getCalendarHead = function() {
     return this.headerWrap;
 };
 //todo refresh table after click to next month and prev
-
 DatePicker.prototype.drawTable = function() {
 
-    //debugger;
     //shows from wich day week starts
     var startDayOfWeek = new Date(this.date.getYear(),this.date.getMonth(), 1).getDay() + 1;
     var daysInMonth = this.date.daysInMonth();
     var weekDays = this.getWeekDaysDecorator();
     var head = this.getCalendarHead();
-
+debugger;
 
     if(this.calendarTable && this.calendarTable.children.length) {
         //debugger;
@@ -195,8 +193,6 @@ DatePicker.prototype.drawTable = function() {
     //this.calendar
 
 
-
-
     this.calendarTable.appendChild(weekDays);
     this.wrapTable.appendChild(this.calendarTable);
 
@@ -205,7 +201,6 @@ DatePicker.prototype.drawTable = function() {
         //day = daysInMonth - startDayOfWeek;
         tr = document.createElement('tr');
         for(var j = 1; j <= 7; j++) {
-
 
             td = document.createElement('td');
             a = document.createElement('a');
