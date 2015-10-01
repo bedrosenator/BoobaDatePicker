@@ -19,7 +19,7 @@ function DatePicker(options) {
     // calendar body
     this.calendar;
     
-    this.startWeek = 0;
+    this.weekStart = options.weekStart;
 
     // calendar header
     this.header;
@@ -47,10 +47,16 @@ function DatePicker(options) {
 };
 
 DatePicker.prototype.init = function() {
+    if (this.weekStart == 1) {
+        var day = this.weekDays.splice(0, 1);
+        this.weekDays.push(day[0]);
+    }
+    
     this.setInputElemDate();
-    this.drawWrap();
-    this.drawHeader();
-    this.drawCalendar();
+    this.generateWrap();
+    this.generateHeader();
+    this.generateCalendar();
+    
 
     this.nextMonth.addEventListener('click', this.showNextMonth.bind(this));
 
@@ -89,7 +95,7 @@ DatePicker.prototype.showNextMonth = function(e) {
 
     this.clearCalendar();
     this.updateTitle();
-    this.drawCalendar();
+    this.generateCalendar();
 
 };
 /**
@@ -98,17 +104,17 @@ DatePicker.prototype.showNextMonth = function(e) {
  */
 DatePicker.prototype.showPrevMonth = function() {};
 
-DatePicker.prototype.drawWrap = function() {
+DatePicker.prototype.generateWrap = function() {
     this.calendarWrap = document.createElement('div');
     this.calendarWrap.className = this.uiClasses.wrap;
 };
 
 /**
- * draws controls next arrow, previous arrow and month in header
+ * generates controls next arrow, previous arrow and month in header
  *
  * @returns {undefined}
  */
-DatePicker.prototype.drawHeader = function() {
+DatePicker.prototype.generateHeader = function() {
     this.header = document.createElement('div');
     this.header.className = this.uiClasses.header;
 
@@ -116,7 +122,6 @@ DatePicker.prototype.drawHeader = function() {
     this.nextMonth.className = this.uiClasses.nextMonth;
     this.nextMonth.innerHTML = '>';
     this.header.appendChild(this.nextMonth);
-
 
     this.prevMonth = document.createElement('a');
     this.prevMonth.className = this.uiClasses.prevMonth;
@@ -133,11 +138,11 @@ DatePicker.prototype.drawHeader = function() {
 
 };
 
-DatePicker.prototype.drawWeekDays = function() {
+DatePicker.prototype.generateWeekDays = function() {
     var tr = document.createElement('tr');
     var td;
-            
-    for (var i = this.startWeek; i < this.weekDays.length; i++) {
+
+    for (var i = 0; i < this.weekDays.length; i++) {
         td = document.createElement('td');
         td.innerHTML = this.weekDays[i];
         tr.appendChild(td);
@@ -166,7 +171,7 @@ DatePicker.prototype.clearCalendar = function() {
 
 
 
-DatePicker.prototype.drawCalendar = function() {
+DatePicker.prototype.generateCalendar = function() {
     var date = this.date;
     var daysInMonth = date.daysInMonth();
     var weekStart = this.getMonthStartDay();
@@ -189,7 +194,7 @@ DatePicker.prototype.drawCalendar = function() {
 
     this.calendar.className = this.uiClasses.calendar;
     
-    this.drawWeekDays();
+    this.generateWeekDays();
     
     for (var i = 1, k = 0; i < totalCells, k <= daysInMonth; i++) {
 
@@ -248,5 +253,14 @@ Date.prototype.daysInMonth = function(month) {
 
 DatePicker.prototype.getMonthStartDay = function() {
     var date = new Date(this.date.getFullYear(), this.date.getMonth());
-    return date.getDay();
+    // if week starts from SUNDAY
+    if (this.weekStart == 7) {
+        return date.getDay();
+    }
+    // if week starts from MONDAY
+    if (date == 0) {
+        date = 7;
+    }    
+    
+    return date.getDay() - 1;
 };
