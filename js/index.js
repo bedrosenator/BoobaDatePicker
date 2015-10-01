@@ -57,7 +57,7 @@ DatePicker.prototype.init = function() {
     this.generateHeader();
     this.generateCalendar();
     
-
+    this.calendarWrap.addEventListener('click', this.setDate.bind(this));
     this.nextMonth.addEventListener('click', this.showNextMonth.bind(this));
 
 };
@@ -77,7 +77,31 @@ DatePicker.prototype.formatDate = function(options) {
     return day + separator + month + separator + year;
 };
 
-DatePicker.prototype.setDate = function() {
+DatePicker.prototype.setDate = function(e) {
+    var target = e.target;
+    var day = target.dataset.day;
+//    debugger;
+    if (target.tagName !== 'A' || !day) return;
+    
+    this.setActiveClass(day);
+    this.date.setDate(day);
+    this.setInputElemDate();
+};
+
+DatePicker.prototype.setActiveClass = function(day) {
+    var links = this.calendar.getElementsByTagName('a');
+    //clear active
+    for (var i = 0; i < links.length; i++) {
+        if (links[i].classList.contains('active')) {
+            links[i].classList.remove('active');
+        }
+    }
+    //set active
+    for (var i = 0; i < links.length; i++) {
+        if (links[i].dataset.day == day) {
+            links[i].classList.add('active');
+        }
+    }
 };
 
 /**

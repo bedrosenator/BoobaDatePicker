@@ -63,9 +63,12 @@
     color: lightgray;
     font-style: italic;
 }
-
+.booba-datepicker-wrap td a:hover {
+    cursor: pointer
+}
 .booba-datepicker-wrap td a {
     padding: 0.2em;
+    display: block;
 }
 .month-name {
     text-align: center;
