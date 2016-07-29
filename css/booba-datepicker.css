@@ -14,7 +14,7 @@
     width: 100%;
 }
 
-.booba-datepicker-wrap table  td {
+.booba-datepicker-wrap table  td, table td {
     border: 1px solid black;
     text-align: center;
     border-collapse: collapse;
@@ -56,7 +56,7 @@
     color: lightgray;
 }
 
-.booba-datepicker-wrap td a.active{
+.booba-datepicker-wrap td a.active, td.active{
     background: #ccc;
 }
 .booba-datepicker-wrap td a.not-active{
