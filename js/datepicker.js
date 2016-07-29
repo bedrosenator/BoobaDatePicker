@@ -3,7 +3,7 @@ function DatePicker(options) {
     this.inputElem = document.querySelector(options.selector);
     this.daysNames = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    this.table = null;
+    this.table = document.createElement('table');
 
     this.init();
 }
@@ -14,25 +14,19 @@ DatePicker.prototype.init = function () {
 };
 
 DatePicker.prototype.setActiveClass = function (date) {
-
 };
 
 DatePicker.prototype.drawTable = function() {
     var td;
     var tr;
     var i, j;
-    var firstDay = new Date(this.date.getFullYear(), this.date.getMonth(), 1);
-    var daysInMonth = this.date.getDaysInMonth(this.date.getFullYear(), this.date.getMonth());
-    var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(this.date.getFullYear(), this.date.getMonth())]);
+    var year = this.date.getFullYear();
+    var month = this.date.getMonth();
+    var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(year, month)]);
+    var daysPerPage = 6 * 7;
 
-    this.table = document.createElement('table');
-    var daysInPrevMonth = this.date.getDaysInMonth(this.date.getFullYear(), this.date.getMonth() - 1);
-
-    var startDayOfNextMonth = this.getFirstDayInMonth(this.date.getFullYear(), this.date.getMonth() + 1);
-
-    var day;
-    //+1 if week start from mo else + 0
-    var prevMonthDays = daysInPrevMonth - tableOffset + 1;
+    // +1 if starts from sunday
+    tableOffset = -Math.abs(this.getLocalDay(this.date)) + 2;
 
     //append header with weeks names
     tr = document.createElement('tr');
@@ -44,51 +38,19 @@ DatePicker.prototype.drawTable = function() {
     this.table.appendChild(tr);
 
     //append table body
-    for (i = 0, j = 1; i < daysInMonth + tableOffset - 1; i++) {
-        // + 2 if week starts from mo. else  + 1
-        day = i + 2 - tableOffset;
-
-        if (i % 7 == 0 || i == 0) {
-            tr = document.createElement('tr');
-        }
+    tr = document.createElement('tr');
+    for (i = 1, j = tableOffset; i <= daysPerPage; i++) {
         td = document.createElement('td');
-
-        //prev month
-        if (day <= 0) {
-            td.innerHTML = prevMonthDays++;
-            // td.innerHTML = "&nbsp;"
-        } else {
-            td.innerHTML = day;
-            td.className = day == (new Date()).getDate() ? 'active' : '';
-        }
-
-
-
+        td.innerHTML = new Date(year, month, j++).getDate();
         tr.appendChild(td);
-        //insert each week
 
-
-        if (i % 7 == 0) {
+        if (i > 1 && i % 7 == 0) {
             this.table.appendChild(tr);
-        }
-        //next month
-        // debugger
-        if (startDayOfNextMonth != 0 && i == (daysInMonth + tableOffset - 2)) {
-            // tr = document.createElement('tr');
-
-            for (j = 0; j <= 7 - startDayOfNextMonth; j++) {
-                td = document.createElement('td');
-                td.innerHTML = j + 1;
-                tr.appendChild(td);
-            }
-
-            console.log(j);
-
-            this.table.appendChild(tr);
+            tr = document.createElement('tr');
         }
     }
 
-
+    this.table.appendChild(tr);
     this.inputElem.parentNode.appendChild(this.table);
 
 };
@@ -105,7 +67,16 @@ DatePicker.prototype.getLastDayInMonth = function (year, month) {
     return (new Date(year, month + 1, 0)).getDay();
 };
 
-Date.prototype.getLocalDay = function (date) {
+DatePicker.prototype.getWeeksCountInMonth = function (year, month) {
+    var firstOfMonth = new Date(year, month, 1);
+    var lastOfMonth = new Date(year, month + 1, 0);
+
+    var used = firstOfMonth.getDay() + lastOfMonth.getDate();
+
+    return Math.ceil( used / 7);
+};
+
+DatePicker.prototype.getLocalDay = function (date) {
     var day = date.getDay();
 
     if (day == 0) {
