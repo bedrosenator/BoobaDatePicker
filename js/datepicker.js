@@ -23,7 +23,7 @@ DatePicker.prototype.drawTable = function() {
     var year = this.date.getFullYear();
     var month = this.date.getMonth();
     var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(year, month)]);
-    var daysPerPage = 6 * 7;
+    var DAYS_PER_PAGE = 6 * 7;
 
     // +1 if starts from sunday
     tableOffset = -Math.abs(this.getLocalDay(this.date)) + 2;
@@ -39,7 +39,7 @@ DatePicker.prototype.drawTable = function() {
 
     //append table body
     tr = document.createElement('tr');
-    for (i = 1, j = tableOffset; i <= daysPerPage; i++) {
+    for (i = 1, j = tableOffset; i <= DAYS_PER_PAGE; i++) {
         td = document.createElement('td');
         td.innerHTML = new Date(year, month, j++).getDate();
         tr.appendChild(td);
