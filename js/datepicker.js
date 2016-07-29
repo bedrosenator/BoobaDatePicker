@@ -18,14 +18,17 @@ DatePicker.prototype.setActiveClass = function (date) {
 };
 
 DatePicker.prototype.drawTable = function() {
-    this.table = document.createElement('table');
     var td;
     var tr;
     var i, j;
     var firstDay = new Date(this.date.getFullYear(), this.date.getMonth(), 1);
     var daysInMonth = this.date.getDaysInMonth(this.date.getFullYear(), this.date.getMonth());
+    var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(this.date.getFullYear(), this.date.getMonth())]);
+
+    this.table = document.createElement('table');
     var daysInPrevMonth = this.date.getDaysInMonth(this.date.getFullYear(), this.date.getMonth() - 1);
-    var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth()]);
+
+    var startDayOfNextMonth = this.getFirstDayInMonth(this.date.getFullYear(), this.date.getMonth() + 1);
 
     var day;
     //+1 if week start from mo else + 0
@@ -59,31 +62,47 @@ DatePicker.prototype.drawTable = function() {
             td.className = day == (new Date()).getDate() ? 'active' : '';
         }
 
-        if (i > daysInMonth) {
-            // td.innerHTML = ++j;
-            console.log(j);
-        }
+
 
         tr.appendChild(td);
         //insert each week
+
+
         if (i % 7 == 0) {
             this.table.appendChild(tr);
         }
+        //next month
+        // debugger
+        if (startDayOfNextMonth != 0 && i == (daysInMonth + tableOffset - 2)) {
+            // tr = document.createElement('tr');
 
+            for (j = 0; j <= 7 - startDayOfNextMonth; j++) {
+                td = document.createElement('td');
+                td.innerHTML = j + 1;
+                tr.appendChild(td);
+            }
 
+            console.log(j);
+
+            this.table.appendChild(tr);
+        }
     }
 
 
     this.inputElem.parentNode.appendChild(this.table);
-    
+
 };
 
 Date.prototype.getDaysInMonth = function(year, month) {
-    return 33 - new Date(year, this.getMonth(), 33).getDate();
+    return 33 - new Date(year, month, 33).getDate();
 };
 
 DatePicker.prototype.getFirstDayInMonth = function (year, month) {
-    return (new Date(this.date.getFullYear(), this.date.getMonth(), 1)).getDay();
+    return (new Date(year, month, 1)).getDay();
+};
+
+DatePicker.prototype.getLastDayInMonth = function (year, month) {
+    return (new Date(year, month + 1, 0)).getDay();
 };
 
 Date.prototype.getLocalDay = function (date) {
