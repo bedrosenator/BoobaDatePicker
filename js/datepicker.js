@@ -1,7 +1,9 @@
 function DatePicker(options) {
     this.date = options.date || new Date;
+    this.firstDayOfWeek = options.firstDayOfWeek ? options.firstDayOfWeek : "MO";
+
     this.inputElem = document.querySelector(options.selector);
-    this.daysNames = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+    this.daysNames = this.firstDayOfWeek == "MO" ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
     this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     this.ui = {};
     this.ui.classes = {
@@ -17,6 +19,7 @@ DatePicker.prototype.init = function () {
 
     this.inputElem.addEventListener('click', this.showCalendar.bind(this));
     document.documentElement.addEventListener('click', this.hideCalendar.bind(this));
+    this.table.addEventListener('click', this.setActiveDate.bind(this));
 };
 
 DatePicker.prototype.createTable = function () {
@@ -44,6 +47,13 @@ DatePicker.prototype.hideCalendar = function (e) {
     this.table.style.display = 'none';
 };
 
+DatePicker.prototype.getTableOffset = function() {
+    // +1 if starts from sunday. +2 if starts from MO
+    var offset = this.firstDayOfWeek == "SU" ? 1 : 2;
+    return -Math.abs(this.getLocalDay(this.date)) + offset;
+
+};
+
 DatePicker.prototype.drawTable = function() {
     var td;
     var tr;
@@ -52,10 +62,11 @@ DatePicker.prototype.drawTable = function() {
     var month = this.date.getMonth();
     var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(year, month)]);
     var DAYS_PER_PAGE = 6 * 7;
-    var currentDate = new Date();
+    var todayDate = new Date();
+    var currentDate;
 
-    // +1 if starts from sunday
-    tableOffset = -Math.abs(this.getLocalDay(this.date)) + 2;
+
+    tableOffset = this.getTableOffset();
 
     //append header with weeks names
     tr = document.createElement('tr');
@@ -69,11 +80,13 @@ DatePicker.prototype.drawTable = function() {
     //append table body
     tr = document.createElement('tr');
     for (i = 1, j = tableOffset; i <= DAYS_PER_PAGE; i++) {
+        currentDate = new Date(year, month, j++);
         td = document.createElement('td');
-        td.innerHTML = new Date(year, month, j++).getDate();
-        // debugger;
-        if (new Date(year, month, j).getTime() == new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay()).getTime()) {
-            // debugger;
+        td.innerHTML = currentDate.getDate();
+        td.dataset.year = currentDate.getFullYear();
+        td.dataset.month = currentDate.getMonth();
+        td.dataset.day = td.innerHTML;
+        if (currentDate.getTime() == new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDay()).getTime()) {
             td.className = 'active';
         }
         tr.appendChild(td);
@@ -82,8 +95,6 @@ DatePicker.prototype.drawTable = function() {
             this.table.appendChild(tr);
             tr = document.createElement('tr');
         }
-
-
     }
 
     this.table.appendChild(tr);
@@ -91,8 +102,20 @@ DatePicker.prototype.drawTable = function() {
 
 };
 
-Date.prototype.setActiveDate = function(date) {
-
+DatePicker.prototype.setActiveDate = function(e) {
+    var target = e.target;
+    var activeItem;
+    while(target !== null) {
+        if (target.tagName == 'TD') {
+            activeItem = document.querySelector('td.active');
+            if (activeItem)
+                activeItem.classList.remove('active');
+            target.classList.add('active');
+            this.inputElem.value = new Date(target.dataset.year, target.dataset.month, target.dataset.day);
+            return;
+        }
+        target = target.parentNode;
+    }
 };
 
 Date.prototype.getDaysInMonth = function(year, month) {
