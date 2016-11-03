@@ -20,6 +20,23 @@ DatePicker.prototype.init = function () {
     this.inputElem.addEventListener('click', this.showCalendar.bind(this));
     document.documentElement.addEventListener('click', this.hideCalendar.bind(this));
     this.table.addEventListener('click', this.setActiveDate.bind(this));
+    this.nextMonth.addEventListener('click', this.setNextMonth.bind(this));
+    this.prevMonth.addEventListener('click', this.setPrevMonth.bind(this));
+};
+
+DatePicker.prototype.setNextMonth = function (e) {
+    // var setNextMonthEvent = new Event('setNextMonthEvent');
+    this.date = new Date(this.date.getFullYear(), this.date.getMonth() + 1, this.date.getDate());
+    // this.table.dispatchEvent(setNextMonthEvent);
+
+    this.removeTable();
+    debugger
+    this.drawTable.bind(this);
+    //this.table.addEventListener('setNextMonthEvent', this.drawTable.bind(this));
+};
+
+DatePicker.prototype.setPrevMonth = function () {
+
 };
 
 DatePicker.prototype.createTable = function () {
@@ -51,7 +68,46 @@ DatePicker.prototype.getTableOffset = function() {
     // +1 if starts from sunday. +2 if starts from MO
     var offset = this.firstDayOfWeek == "SU" ? 1 : 2;
     return -Math.abs(this.getLocalDay(this.date)) + offset;
+};
 
+DatePicker.prototype.drawControlHeader = function() {
+    var tr = document.createElement('tr');
+    var td;
+
+    td = document.createElement('td');
+    td.innerHTML = '<';
+    td.classList.add('prev-month');
+    this.prevMonth = td;
+    tr.appendChild(td);
+    td = document.createElement('td');
+    td.colSpan = 5;
+    td.innerHTML = "MONTH";
+    td.classList.add('selected-month');
+    this.selectedMonthHeader = td;
+    tr.appendChild(td);
+    td = document.createElement('td');
+    td.innerHTML = '>';
+    td.classList.add('next-month');
+    this.nextMonth = td;
+    tr.appendChild(td);
+    this.table.appendChild(tr);
+};
+
+DatePicker.prototype.drawHeader = function () {
+    var tr = document.createElement('tr');
+    var td, i;
+
+    for (i = 0; i < this.daysNames.length; i++) {
+        td = document.createElement('th');
+        td.innerHTML = this.daysNames[i];
+        tr.appendChild(td);
+    }
+    this.table.appendChild(tr);
+};
+
+DatePicker.prototype.removeTable = function () {
+    //todo replace this part
+    this.table.removeChild(document.querySelector('table tbody'))
 };
 
 DatePicker.prototype.drawTable = function() {
@@ -64,18 +120,12 @@ DatePicker.prototype.drawTable = function() {
     var DAYS_PER_PAGE = 6 * 7;
     var todayDate = new Date();
     var currentDate;
-
-
+    var tBody = document.createElement('tbody');
     tableOffset = this.getTableOffset();
 
+    this.drawControlHeader();
     //append header with weeks names
-    tr = document.createElement('tr');
-    for (i = 0; i < this.daysNames.length; i++) {
-        td = document.createElement('th');
-        td.innerHTML = this.daysNames[i];
-        tr.appendChild(td);
-    }
-    this.table.appendChild(tr);
+    this.drawHeader();
 
     //append table body
     tr = document.createElement('tr');
@@ -92,12 +142,13 @@ DatePicker.prototype.drawTable = function() {
         tr.appendChild(td);
 
         if (i > 1 && i % 7 == 0) {
-            this.table.appendChild(tr);
+            tBody.appendChild(tr);
             tr = document.createElement('tr');
         }
     }
 
-    this.table.appendChild(tr);
+    tBody.appendChild(tr);
+    this.table.appendChild(tBody);
     this.inputElem.parentNode.appendChild(this.table);
 
 };
@@ -106,7 +157,7 @@ DatePicker.prototype.setActiveDate = function(e) {
     var target = e.target;
     var activeItem;
     while(target !== null) {
-        if (target.tagName == 'TD') {
+        if (target.tagName == 'TD' && target.dataset.year) {
             activeItem = document.querySelector('td.active');
             if (activeItem)
                 activeItem.classList.remove('active');
