@@ -1,6 +1,9 @@
 function DatePicker(options) {
     this.date = options.date || new Date;
     this.firstDayOfWeek = options.firstDayOfWeek ? options.firstDayOfWeek : "MO";
+    this.events = {};
+    this.datePickerWrap = document.createElement('div');
+    this.datePickerWrap.classList.add(options.wrapperClassName ? options.wrapperClassName : 'datepicker-wrap');
 
     this.inputElem = document.querySelector(options.selector);
     this.daysNames = this.firstDayOfWeek == "MO" ? ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] : ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
@@ -13,30 +16,30 @@ function DatePicker(options) {
 }
 
 DatePicker.prototype.init = function () {
+    this.events.dateChanged = new Event('dateChanged');
     this.createTable();
     this.drawTable();
     this.inputElem.value = this.date;
-
     this.inputElem.addEventListener('click', this.showCalendar.bind(this));
     document.documentElement.addEventListener('click', this.hideCalendar.bind(this));
     this.table.addEventListener('click', this.setActiveDate.bind(this));
     this.nextMonth.addEventListener('click', this.setNextMonth.bind(this));
     this.prevMonth.addEventListener('click', this.setPrevMonth.bind(this));
+    this.table.addEventListener('dateChanged', this.dateChangedHandler.bind(this));
+};
+
+DatePicker.prototype.dateChangedHandler = function () {
+    this.refreshTable();
 };
 
 DatePicker.prototype.setNextMonth = function (e) {
-    // var setNextMonthEvent = new Event('setNextMonthEvent');
     this.date = new Date(this.date.getFullYear(), this.date.getMonth() + 1, this.date.getDate());
-    // this.table.dispatchEvent(setNextMonthEvent);
-
-    this.removeTable();
-    debugger
-    this.drawTable.bind(this);
-    //this.table.addEventListener('setNextMonthEvent', this.drawTable.bind(this));
+    this.table.dispatchEvent(this.events.dateChanged);
 };
 
 DatePicker.prototype.setPrevMonth = function () {
-
+    this.date = new Date(this.date.getFullYear(), this.date.getMonth() - 1, this.date.getDate());
+    this.table.dispatchEvent(this.events.dateChanged);
 };
 
 DatePicker.prototype.createTable = function () {
@@ -81,7 +84,7 @@ DatePicker.prototype.drawControlHeader = function() {
     tr.appendChild(td);
     td = document.createElement('td');
     td.colSpan = 5;
-    td.innerHTML = "MONTH";
+    td.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
     td.classList.add('selected-month');
     this.selectedMonthHeader = td;
     tr.appendChild(td);
@@ -91,6 +94,12 @@ DatePicker.prototype.drawControlHeader = function() {
     this.nextMonth = td;
     tr.appendChild(td);
     this.table.appendChild(tr);
+};
+
+DatePicker.prototype.refreshTable = function () {
+    this.removeTableBody();
+    this.drawTableBody();
+    this.selectedMonthHeader.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
 };
 
 DatePicker.prototype.drawHeader = function () {
@@ -105,12 +114,12 @@ DatePicker.prototype.drawHeader = function () {
     this.table.appendChild(tr);
 };
 
-DatePicker.prototype.removeTable = function () {
+DatePicker.prototype.removeTableBody = function () {
     //todo replace this part
     this.table.removeChild(document.querySelector('table tbody'))
 };
 
-DatePicker.prototype.drawTable = function() {
+DatePicker.prototype.drawTableBody = function () {
     var td;
     var tr;
     var i, j;
@@ -122,10 +131,6 @@ DatePicker.prototype.drawTable = function() {
     var currentDate;
     var tBody = document.createElement('tbody');
     tableOffset = this.getTableOffset();
-
-    this.drawControlHeader();
-    //append header with weeks names
-    this.drawHeader();
 
     //append table body
     tr = document.createElement('tr');
@@ -149,8 +154,16 @@ DatePicker.prototype.drawTable = function() {
 
     tBody.appendChild(tr);
     this.table.appendChild(tBody);
-    this.inputElem.parentNode.appendChild(this.table);
+    this.datePickerWrap.appendChild(this.table)
+    this.inputElem.parentNode.appendChild(this.datePickerWrap);
 
+};
+
+DatePicker.prototype.drawTable = function() {
+    this.drawControlHeader();
+    //append header with weeks names
+    this.drawHeader();
+    this.drawTableBody();
 };
 
 DatePicker.prototype.setActiveDate = function(e) {
