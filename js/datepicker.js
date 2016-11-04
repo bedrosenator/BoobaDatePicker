@@ -10,8 +10,14 @@ function DatePicker(options) {
     this.months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     this.ui = {};
     this.ui.classes = {
-        table: 'datepicker-table'
+        table: 'datepicker-table',
+        activeDate: 'active',
+        prevMonthDate: 'prev-month-date',
+        nextMonth: 'next-month',
+        prevMonth: 'prev-month',
+        currentMont: 'current-month'
     };
+
     this.init();
 }
 
@@ -79,18 +85,18 @@ DatePicker.prototype.drawControlHeader = function() {
 
     td = document.createElement('td');
     td.innerHTML = '<';
-    td.classList.add('prev-month');
+    td.classList.add(this.ui.classes.nextMonth);
     this.prevMonth = td;
     tr.appendChild(td);
     td = document.createElement('td');
     td.colSpan = 5;
     td.innerHTML = this.months[this.date.getMonth()] + ' ' + this.date.getFullYear();
-    td.classList.add('selected-month');
+    td.classList.add(this.ui.classes.selectedMonth);
     this.selectedMonthHeader = td;
     tr.appendChild(td);
     td = document.createElement('td');
     td.innerHTML = '>';
-    td.classList.add('next-month');
+    td.classList.add(this.ui.classes.nextMonth);
     this.nextMonth = td;
     tr.appendChild(td);
     this.table.appendChild(tr);
@@ -115,8 +121,7 @@ DatePicker.prototype.drawHeader = function () {
 };
 
 DatePicker.prototype.removeTableBody = function () {
-    //todo replace this part
-    this.table.removeChild(document.querySelector('table tbody'))
+    this.table.removeChild(this.tBody)
 };
 
 DatePicker.prototype.drawTableBody = function () {
@@ -128,33 +133,38 @@ DatePicker.prototype.drawTableBody = function () {
     var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(year, month)]);
     var DAYS_PER_PAGE = 6 * 7;
     var todayDate = new Date();
-    var currentDate;
-    var tBody = document.createElement('tbody');
+    var currentMonthDate;
+    this.tBody = document.createElement('tbody');
     tableOffset = this.getTableOffset();
 
     //append table body
     tr = document.createElement('tr');
     for (i = 1, j = tableOffset; i <= DAYS_PER_PAGE; i++) {
-        currentDate = new Date(year, month, j++);
+        currentMonthDate = new Date(year, month, j++);
         td = document.createElement('td');
-        td.innerHTML = currentDate.getDate();
-        td.dataset.year = currentDate.getFullYear();
-        td.dataset.month = currentDate.getMonth();
+        td.innerHTML = currentMonthDate.getDate();
+        td.dataset.year = currentMonthDate.getFullYear();
+        td.dataset.month = currentMonthDate.getMonth();
         td.dataset.day = td.innerHTML;
-        if (currentDate.getTime() == new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDay()).getTime()) {
-            td.className = 'active';
+
+        if (currentMonthDate.getMonth() !== this.date.getMonth()) {
+            td.className = this.ui.classes.prevMonthDate;
+        }
+
+        if (currentMonthDate.getTime() == new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDay()).getTime()) {
+            td.className = this.ui.classes.activeDate;
         }
         tr.appendChild(td);
 
         if (i > 1 && i % 7 == 0) {
-            tBody.appendChild(tr);
+            this.tBody.appendChild(tr);
             tr = document.createElement('tr');
         }
     }
 
-    tBody.appendChild(tr);
-    this.table.appendChild(tBody);
-    this.datePickerWrap.appendChild(this.table)
+    this.tBody.appendChild(tr);
+    this.table.appendChild(this.tBody);
+    this.datePickerWrap.appendChild(this.table);
     this.inputElem.parentNode.appendChild(this.datePickerWrap);
 
 };
