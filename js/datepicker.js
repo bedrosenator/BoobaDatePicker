@@ -130,12 +130,11 @@ DatePicker.prototype.drawTableBody = function () {
     var i, j;
     var year = this.date.getFullYear();
     var month = this.date.getMonth();
-    var tableOffset = this.daysNames.indexOf(this.daysNames[this.getFirstDayInMonth(year, month)]);
+    var tableOffset = this.getTableOffset();
     var DAYS_PER_PAGE = 6 * 7;
     var todayDate = new Date();
     var currentMonthDate;
     this.tBody = document.createElement('tbody');
-    tableOffset = this.getTableOffset();
 
     //append table body
     tr = document.createElement('tr');
