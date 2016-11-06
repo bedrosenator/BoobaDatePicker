@@ -75,8 +75,15 @@ DatePicker.prototype.hideCalendar = function (e) {
 
 DatePicker.prototype.getTableOffset = function() {
     // +1 if starts from sunday. +2 if starts from MO
-    var offset = this.firstDayOfWeek == "SU" ? 1 : 2;
-    return -Math.abs(this.getLocalDay(this.date)) + offset;
+    var offset = this.firstDayOfWeek == "SU" ? 1 : 7;
+    var day = new Date(this.date.getFullYear(), this.date.getMonth()).getDay();
+
+    if (day == 0) {
+        day = 7;
+    }
+    //+7 it means add 1 week in first line
+    // - 1 because 0 day is last day of prev month
+    return -((day - 1) + offset);
 };
 
 DatePicker.prototype.drawControlHeader = function() {
@@ -135,11 +142,11 @@ DatePicker.prototype.drawTableBody = function () {
     var todayDate = new Date();
     var currentMonthDate;
     this.tBody = document.createElement('tbody');
-
+    //debugger
     //append table body
     tr = document.createElement('tr');
     for (i = 1, j = tableOffset; i <= DAYS_PER_PAGE; i++) {
-        currentMonthDate = new Date(year, month, j++);
+        currentMonthDate = new Date(year, month, ++j);
         td = document.createElement('td');
         td.innerHTML = currentMonthDate.getDate();
         td.dataset.year = currentMonthDate.getFullYear();
@@ -150,7 +157,7 @@ DatePicker.prototype.drawTableBody = function () {
             td.className = this.ui.classes.prevMonthDate;
         }
 
-        if (currentMonthDate.getTime() == new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDay()).getTime()) {
+        if (currentMonthDate.getTime() == new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime()) {
             td.className = this.ui.classes.activeDate;
         }
         tr.appendChild(td);
