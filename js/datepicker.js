@@ -75,7 +75,7 @@ DatePicker.prototype.hideCalendar = function (e) {
 
 DatePicker.prototype.getTableOffset = function() {
     // +1 if starts from sunday. +2 if starts from MO
-    var offset = this.firstDayOfWeek == "SU" ? 1 : 7;
+    var offset = this.firstDayOfWeek == "SU" ? 1 : 0;
     var day = new Date(this.date.getFullYear(), this.date.getMonth()).getDay();
 
     if (day == 0) {
